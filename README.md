@@ -6,6 +6,14 @@ Sistema de controle de atendimento desenvolvido com Ionic, Angular e Capacitor n
 
 O aplicativo foi pensado para fluxo de senhas em ambientes de atendimento. O cliente emite senhas e acompanha a fila, o atendente chama a proxima senha com controle de guiche e o relatorio apresenta os indicadores diarios e mensais da operacao.
 
+## Integrantes do grupo
+
+1. Arnaldo Reis
+2. Carla Rayanne
+3. Emilly Mayra
+4. Gustavo Lopes
+5. Higor Ricardo
+
 ## Capturas de tela
 
 As imagens abaixo documentam as tres telas principais do app:

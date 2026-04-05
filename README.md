@@ -1,25 +1,49 @@
-# Sistema de Controle de Atendimento
+# MobileTicketsIonic
 
-Aplicacao Ionic + Angular no frontend e Node.js + Express no backend, organizada em arquitetura limpa com persistencia em MySQL 8.
+Sistema de controle de atendimento desenvolvido com Ionic, Angular e Capacitor no frontend, Node.js + Express no backend e MySQL 8 para persistencia. O projeto usa template `tabs` e organiza a interface em tres areas principais: cliente, atendente e relatorio.
 
-## Estrutura
+## Visao geral
 
-- `frontend/`: frontend Ionic/Angular
-- `backend/`: API Node.js com use cases, dominio, infraestrutura e controller HTTP
-- `db/`: imagem de inicializacao do MySQL
-- `docker-compose.yml`: sobe banco, backend e frontend com um comando
+O aplicativo foi pensado para fluxo de senhas em ambientes de atendimento. O cliente emite senhas e acompanha a fila, o atendente chama a proxima senha com controle de guiche e o relatorio apresenta os indicadores diarios e mensais da operacao.
+
+## Capturas de tela
+
+As imagens abaixo documentam as tres telas principais do app:
+
+![Tela do cliente](docs/screens/clientes.png)
+
+![Tela do atendente](docs/screens/atendente.png)
+
+![Tela de relatorios](docs/screens/relatorio.png)
+
+## Tecnologias
+
+- Ionic 7
+- Angular 17
+- Capacitor 5
+- Node.js + Express
+- MySQL 8
+- Arquitetura limpa no backend
+
+## Estrutura do projeto
+
+- `frontend/`: aplicacao Ionic/Angular com as abas Cliente, Atendente e Relatorio
+- `backend/`: API em Node.js com use cases, dominio, infraestrutura e controller HTTP
+- `db/`: imagem de inicializacao do MySQL e script SQL
+- `docker-compose.yml`: orquestracao dos containers de banco, backend e frontend
+- `docs/screens/`: imagens usadas na documentacao do projeto
 
 ## Como executar
 
-### Docker
+### Com Docker
 
 ```bash
 docker compose up --build
 ```
 
-O `docker compose` aceita um arquivo `.env` na raiz para sobrescrever variáveis como `BACKEND_PORT`, `FRONTEND_PORT` e credenciais do MySQL.
+O `docker compose` aceita um arquivo `.env` na raiz para sobrescrever variaveis como `BACKEND_PORT`, `FRONTEND_PORT`, `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER` e `MYSQL_PASSWORD`.
 
-### Frontend
+### Frontend local
 
 ```bash
 cd frontend
@@ -27,9 +51,9 @@ npm install
 npm run start
 ```
 
-No modo local, o frontend usa `http://localhost:3000/api`.
+Em desenvolvimento local, o frontend consome a API em `http://localhost:3000/api`.
 
-### Backend
+### Backend local
 
 ```bash
 cd backend
@@ -37,7 +61,23 @@ npm install
 npm run dev
 ```
 
-No modo local, o backend lê `PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` e `DB_NAME` do ambiente, com valores padrão prontos para desenvolvimento.
+O backend le `PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` e `DB_NAME` do ambiente, com valores padrao prontos para desenvolvimento.
+
+## Scripts disponiveis
+
+### Frontend
+
+- `npm run start`: sobe o Angular em modo desenvolvimento
+- `npm run build`: gera a versao de producao
+- `npm run test`: executa os testes
+- `npm run lint`: executa o lint
+
+### Backend
+
+- `npm run dev`: executa a API em modo observavel
+- `npm run build`: compila TypeScript para `dist`
+- `npm run start`: inicia a aplicacao compilada
+- `npm run lint`: executa o lint
 
 ## Endpoints principais
 
@@ -56,6 +96,6 @@ No modo local, o backend lê `PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWO
 - Relatorio diario e mensal com resumo e detalhamento
 - Tempo medio de atendimento por tipo de senha
 
-## Observacao
+## Licenca
 
-O projeto esta separado em `frontend/` e `backend/`. A raiz contem apenas orquestracao, banco e documentacao.
+Este repositorio usa a licenca CC0 1.0 Universal. Veja o arquivo [LICENSE](LICENSE) para os termos completos.

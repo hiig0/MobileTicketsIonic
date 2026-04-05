@@ -1,0 +1,148 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="toolbar-shell">
+    <ion-title>Central do Atendente</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="refresh()">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="page-shell">
+  <section class="hero-card">
+    <p class="eyebrow">Fluxo de chamada</p>
+    <h1>Chame a próxima senha sem perder a regra de alternância</h1>
+    <p>
+      O backend organiza a fila com prioridade, descarta as exceções e devolve as chamadas para o painel do cliente.
+    </p>
+  </section>
+
+  <ion-card class="surface-card">
+    <ion-card-header>
+      <ion-card-subtitle>Guichê ativo</ion-card-subtitle>
+      <ion-card-title>Defina onde a senha será atendida</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item lines="none" class="field-item">
+        <ion-label position="stacked">Guichê</ion-label>
+        <ion-select [(ngModel)]="guiche" interface="popover" placeholder="Selecione">
+          <ion-select-option value="Guichê 1">Guichê 1</ion-select-option>
+          <ion-select-option value="Guichê 2">Guichê 2</ion-select-option>
+          <ion-select-option value="Guichê 3">Guichê 3</ion-select-option>
+          <ion-select-option value="Guichê 4">Guichê 4</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-button expand="block" class="call-button" [disabled]="loading" (click)="chamarProximaSenha()">
+        <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+        <span>{{ loading ? 'Chamando...' : 'Chamar próxima senha' }}</span>
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="surface-card" *ngIf="lastCall?.ticket as called">
+    <ion-card-header>
+      <ion-card-subtitle>Última chamada</ion-card-subtitle>
+      <ion-card-title>{{ called.code }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="ticket-meta">
+        <ion-chip color="primary">
+          <ion-icon name="person-outline"></ion-icon>
+          <ion-label>{{ guiche }}</ion-label>
+        </ion-chip>
+        <ion-chip color="success">
+          <ion-icon name="checkmark-done-outline"></ion-icon>
+          <ion-label>{{ ticketStatusLabel(called.status) }}</ion-label>
+        </ion-chip>
+        <ion-chip color="tertiary">
+          <ion-icon name="pricetag-outline"></ion-icon>
+          <ion-label>{{ ticketTypeLabel(called.type) }}</ion-label>
+        </ion-chip>
+      </div>
+      <p>A senha foi encaminhada com sucesso para atendimento no guichê informado.</p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="surface-card" *ngIf="overview as panel">
+    <ion-card-header>
+      <ion-card-subtitle>Status da fila</ion-card-subtitle>
+      <ion-card-title>{{ panel.waitingCount }} senhas ainda aguardam chamada</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-grid class="stats-grid">
+        <ion-row>
+          <ion-col size="6" size-md="3">
+            <article class="stat-box">
+              <span>Emitidas</span>
+              <strong>{{ panel.summary.totalIssued }}</strong>
+            </article>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <article class="stat-box">
+              <span>Atendidas</span>
+              <strong>{{ panel.summary.totalAttended }}</strong>
+            </article>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <article class="stat-box">
+              <span>Descartadas</span>
+              <strong>{{ panel.summary.totalDiscarded }}</strong>
+            </article>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <article class="stat-box accent">
+              <span>Fila prioritária</span>
+              <strong>{{ panel.summary.waitingByType[TicketType.PRIORITARIA] }}</strong>
+            </article>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <div class="type-grid">
+        <article class="type-box">
+          <span>Geral atendida</span>
+          <strong>{{ panel.summary.attendedByType['SG'] }}</strong>
+        </article>
+        <article class="type-box">
+          <span>Exames atendida</span>
+          <strong>{{ panel.summary.attendedByType['SE'] }}</strong>
+        </article>
+        <article class="type-box">
+          <span>Última chamada</span>
+          <strong>{{ panel.recentCalls.length ? panel.recentCalls[0].code : 'Nenhuma' }}</strong>
+        </article>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="surface-card">
+    <ion-card-header>
+      <ion-card-subtitle>Últimas chamadas</ion-card-subtitle>
+      <ion-card-title>Painel do atendimento</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ng-container *ngIf="overview?.recentCalls?.length; else emptyAttendant">
+        <ion-list lines="none" class="recent-list">
+          <ion-item *ngFor="let call of overview?.recentCalls">
+            <ion-label>
+              <h2>{{ call.code }}</h2>
+              <p>{{ ticketTypeLabel(call.type) }} · {{ ticketStatusLabel(call.status) }}</p>
+            </ion-label>
+            <ion-note slot="end">{{ call.guiche }}</ion-note>
+          </ion-item>
+        </ion-list>
+      </ng-container>
+
+      <ng-template #emptyAttendant>
+        <div class="empty-state">
+          <ion-icon name="albums-outline"></ion-icon>
+          <h3>Nenhuma chamada realizada</h3>
+          <p>Depois da primeira chamada, o histórico aparecerá nesta lista.</p>
+        </div>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

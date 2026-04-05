@@ -1,0 +1,56 @@
+import { randomUUID } from 'node:crypto';
+import { Ticket, TicketStatus, TicketType } from '../../domain/entities/ticket';
+import { TicketRepository } from '../../domain/repositories/ticket-repository';
+import { formatTicketCode } from '../../domain/services/ticket-code';
+import { UseCaseDependencies } from './usecase-dependencies';
+
+export interface IssueTicketResult {
+  ticket: Ticket;
+  discarded: boolean;
+}
+
+export class IssueTicketUseCase {
+  private readonly now: () => Date;
+  private readonly random: () => number;
+
+  constructor(
+    private readonly repository: TicketRepository,
+    dependencies: UseCaseDependencies = {},
+  ) {
+    this.now = dependencies.now ?? (() => new Date());
+    this.random = dependencies.random ?? Math.random;
+  }
+
+  async execute(type: TicketType): Promise<IssueTicketResult> {
+    const issuedAt = this.now();
+    const start = this.startOfDay(issuedAt);
+    const end = this.startOfNextDay(issuedAt);
+    const sequence = (await this.repository.countIssuedByTypeBetween(type, start, end)) + 1;
+    const code = formatTicketCode(issuedAt, type, sequence);
+    const discarded = this.random() < 0.05;
+
+    const ticket: Ticket = {
+      id: randomUUID(),
+      code,
+      type,
+      sequence,
+      status: discarded ? TicketStatus.DESCARTADA : TicketStatus.EMITIDA,
+      issuedAt,
+      attendedAt: null,
+      guiche: null,
+      serviceMinutes: null,
+    };
+
+    await this.repository.save(ticket);
+
+    return { ticket, discarded };
+  }
+
+  private startOfDay(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+  }
+
+  private startOfNextDay(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0);
+  }
+}

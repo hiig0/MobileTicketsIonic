@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+.page-shell {
+  --background: #04070d;
+  color: #f5f7fb;
+}
+
+.hero-card {
+}
+
+.field-item {
+  --background: transparent;
+  --color: #f5f7fb;
+  --border-color: rgba(255, 255, 255, 0.08);
+  margin-bottom: 18px;
+}
+
+.surface-card ion-card-title,
+.surface-card ion-card-subtitle {
+  color: #f5f7fb;
+}
+
+.surface-card ion-card-subtitle {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.call-button {
+  --border-radius: 18px;
+  --background: #f97316;
+  --box-shadow: 0 18px 40px rgba(249, 115, 22, 0.28);
+  height: 52px;
+  font-weight: 600;
+}
+
+.stat-box.accent {
+  background: #14213d;
+}
+
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.type-box {
+  min-height: 96px;
+}
+
+.recent-list ion-item {
+  --background: #101827;
+  --color: #f5f7fb;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --padding-start: 10px;
+  --inner-padding-end: 10px;
+  margin-bottom: 10px;
+  border-radius: 16px;
+}
+
+.recent-list ion-label h2,
+.recent-list ion-label p {
+  color: #f5f7fb;
+}
+
+.recent-list ion-note {
+  color: rgba(245, 247, 251, 0.78);
+}

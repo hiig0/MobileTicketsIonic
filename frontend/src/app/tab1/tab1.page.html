@@ -1,0 +1,150 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="toolbar-shell">
+    <ion-title>Central do Cliente</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="refresh()">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="page-shell">
+  <section class="hero-card">
+    <p class="eyebrow">Emissão e fila</p>
+    <h1>Retire sua senha e acompanhe a fila em tempo real</h1>
+    <p>
+      O sistema envia a senha para o backend, aplica a regra de prioridade e mantém o painel atualizado.
+    </p>
+  </section>
+
+  <ion-grid class="content-grid">
+    <ion-row>
+      <ion-col size="12" size-md="4">
+        <button class="ticket-action priority" [disabled]="loading" (click)="emitir(TicketType.PRIORITARIA)">
+          <span class="action-kicker">Senha</span>
+          <strong>Prioritária</strong>
+          <small>Prioridade alta no atendimento</small>
+        </button>
+      </ion-col>
+      <ion-col size="12" size-md="4">
+        <button class="ticket-action general" [disabled]="loading" (click)="emitir(TicketType.GERAL)">
+          <span class="action-kicker">Senha</span>
+          <strong>Geral</strong>
+          <small>Atendimento convencional</small>
+        </button>
+      </ion-col>
+      <ion-col size="12" size-md="4">
+        <button class="ticket-action exams" [disabled]="loading" (click)="emitir(TicketType.EXAMES)">
+          <span class="action-kicker">Senha</span>
+          <strong>Exames</strong>
+          <small>Retirada rápida de resultados</small>
+        </button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-card class="surface-card" *ngIf="lastIssuedTicket as issued">
+    <ion-card-header>
+      <ion-card-subtitle>Última emissão</ion-card-subtitle>
+      <ion-card-title>{{ issued.ticket.code }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="ticket-meta">
+        <ion-chip color="primary">
+          <ion-icon name="pricetag-outline"></ion-icon>
+          <ion-label>{{ ticketTypeLabel(issued.ticket.type) }}</ion-label>
+        </ion-chip>
+        <ion-chip [color]="issued.discarded ? 'warning' : 'success'">
+          <ion-icon [name]="issued.discarded ? 'alert-circle-outline' : 'checkmark-done-outline'"></ion-icon>
+          <ion-label>{{ issued.discarded ? 'Descartada' : 'Emitida' }}</ion-label>
+        </ion-chip>
+      </div>
+      <p>
+        {{ issued.discarded ? 'Esta senha foi descartada automaticamente, conforme a regra de 5%.' : 'Senha adicionada à fila com sucesso.' }}
+      </p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="surface-card" *ngIf="overview as panel">
+    <ion-card-header>
+      <ion-card-subtitle>Painel do dia</ion-card-subtitle>
+      <ion-card-title>{{ panel.waitingCount }} senhas aguardando atendimento</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-grid class="stats-grid">
+        <ion-row>
+          <ion-col size="6" size-md="3">
+            <article class="stat-box">
+              <span>Emitidas</span>
+              <strong>{{ panel.summary.totalIssued }}</strong>
+            </article>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <article class="stat-box">
+              <span>Atendidas</span>
+              <strong>{{ panel.summary.totalAttended }}</strong>
+            </article>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <article class="stat-box">
+              <span>Descartadas</span>
+              <strong>{{ panel.summary.totalDiscarded }}</strong>
+            </article>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <article class="stat-box accent">
+              <span>Em espera</span>
+              <strong>{{ panel.waitingCount }}</strong>
+            </article>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <div class="type-grid">
+        <article class="type-box">
+            <span>Prioritária em espera</span>
+            <strong>{{ panel.summary.waitingByType[TicketType.PRIORITARIA] }}</strong>
+        </article>
+        <article class="type-box">
+            <span>Geral em espera</span>
+            <strong>{{ panel.summary.waitingByType[TicketType.GERAL] }}</strong>
+        </article>
+        <article class="type-box">
+            <span>Exames em espera</span>
+            <strong>{{ panel.summary.waitingByType[TicketType.EXAMES] }}</strong>
+        </article>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="surface-card">
+    <ion-card-header>
+      <ion-card-subtitle>Últimas chamadas</ion-card-subtitle>
+      <ion-card-title>5 senhas mais recentes</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ng-container *ngIf="overview?.recentCalls?.length; else emptyCalls">
+        <ion-list lines="none" class="recent-list">
+          <ion-item *ngFor="let call of overview?.recentCalls">
+            <ion-label>
+              <h2>{{ call.code }}</h2>
+              <p>{{ ticketTypeLabel(call.type) }} · {{ ticketStatusLabel(call.status) }}</p>
+            </ion-label>
+            <ion-note slot="end">{{ call.guiche }}</ion-note>
+          </ion-item>
+        </ion-list>
+      </ng-container>
+
+      <ng-template #emptyCalls>
+        <div class="empty-state">
+          <ion-icon name="time-outline"></ion-icon>
+          <h3>Nenhuma chamada registrada</h3>
+          <p>Quando o atendente chamar uma senha, ela aparecerá aqui em destaque.</p>
+        </div>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
